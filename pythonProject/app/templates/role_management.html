@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min93e3.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.min.css') }}">
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>角色管理</h5>
+                        <div class="ibox-tools">
+                            <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#roleManagementModal">角色管理</button>
+                            <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#addUserModal">添加用戶</button>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>用戶名</th>
+                                    <th>角色名称</th>
+                                    <th>描述</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.role.name }}</td>
+                                    <td>{{ user.role.description }}</td>
+                                    <td>
+                                        <button class="btn btn-xs btn-warning" data-toggle="modal" data-target="#editUserModal" data-id="{{ user.id }}" data-username="{{ user.username }}" data-role="{{ user.role.id }}">编辑</button>
+                                        <button class="btn btn-xs btn-danger" onclick="deleteUser({{ user.id }})">删除</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 角色管理模态框 -->
+    <div class="modal fade" id="roleManagementModal" tabindex="-1" role="dialog" aria-labelledby="roleManagementModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('edit_role') }}">
+                    <input type="hidden" name="_method" value="PUT">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="roleManagementModalLabel">角色管理</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="role_name">角色名稱</label>
+                            <select class="form-control" id="role_name" name="role_id">
+                                {% for role in roles %}
+                                <option value="{{ role.id }}" data-name="{{ role.name }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#addRoleModal">新增角色</button>
+                            <button type="button" class="btn btn-danger btn-xs" onclick="deleteRole()">删除角色</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="role_description">角色描述</label>
+                            <input type="text" class="form-control" id="role_description" name="role_description" placeholder="留空則保留目前描述">
+                        </div>
+                        <div class="form-group">
+                            <label for="permissions">权限</label>
+                            <div id="permissions">
+                                {% for category, subpages in permissions.items() %}
+                                    <div>
+                                        <label>
+                                            <input type="checkbox" name="permissions" value="{{ category }}">
+                                            {{ category }}
+                                        </label>
+                                        <div style="padding-left: 20px;">
+                                            {% for page, display_name in subpages.items() %}
+                                                <label>
+                                                    <input type="checkbox" name="permissions" value="{{ page }}">
+                                                    {{ display_name }}
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑用户模态框 -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('edit_user') }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">编辑用戶</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="edit_user_id" name="user_id">
+                        <div class="form-group">
+                            <label for="edit_username">用戶名</label>
+                            <input type="text" class="form-control" id="edit_username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_password">密码</label>
+                            <input type="password" class="form-control" id="edit_password" name="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_role">角色</label>
+                            <select class="form-control" id="edit_role" name="role_id">
+                                {% for role in roles %}
+                                <option value="{{ role.id }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+     <!-- 新增角色模态框 -->
+    <div class="modal fade" id="addRoleModal" tabindex="-1" role="dialog" aria-labelledby="addRoleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('add_role') }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addRoleModalLabel">新增角色</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="new_role_name">角色名稱</label>
+                            <input type="text" class="form-control" id="new_role_name" name="role_name" required>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('add_user') }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserModalLabel">添加用戶</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="username">用戶名</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">密码</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="role_id">角色</label>
+                            <select class="form-control" id="role_id" name="role_id" required>
+                                {% for role in roles %}
+                                <option value="{{ role.id }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/metisMenu/jquery.metisMenu.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/layer/layer.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/hplus.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/contabs.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/pace/pace.min.js') }}"></script>
+    <script>
+        $('#roleManagementModal').on('show.bs.modal', function(event) {
+            var roleId = $('#role_name').val();
+            loadRolePermissions(roleId);
+        });
+
+        $('#role_name').change(function() {
+            var roleId = $(this).val();
+            loadRolePermissions(roleId);
+        });
+
+        function loadRolePermissions(roleId) {
+            $.get("/get_role_permissions", { role_id: roleId }, function(data) {
+                // 取消所有选中状态
+                $('#permissions input[type="checkbox"]').prop('checked', false);
+
+                // 根据返回的权限数据勾选复选框
+                data.permissions.forEach(function(permission) {
+                    $('#permissions input[value="' + permission + '"]').prop('checked', true);
+                });
+            });
+        }
+
+        function deleteRole() {
+            var selectedRoleId = document.getElementById('role_name').value;
+            if (confirm('确定要删除此角色吗？')) {
+                window.location.href = '/delete_role/' + selectedRoleId;
+            }
+        }
+
+        $('#editUserModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var userId = button.data('id');
+            var username = button.data('username');
+            var role = button.data('role');
+
+            var modal = $(this);
+            modal.find('.modal-body #edit_user_id').val(userId);
+            modal.find('.modal-body #edit_username').val(username);
+            modal.find('.modal-body #edit_role').val(role);
+        });
+
+        function deleteUser(userId) {
+            if (confirm('确定要删除此用戶吗？')) {
+                window.location.href = '/delete_user/' + userId;
+            }
+        }
+    </script>
+</body>
+
+</html>

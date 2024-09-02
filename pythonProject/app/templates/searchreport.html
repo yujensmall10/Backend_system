@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看各部門日報 - 管理後台</title>
+    <meta name="keywords" content="后台, 管理, 报告, 部门, 日报">
+    <meta name="description" content="查看各部门的日报报告">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min93.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.min862f.css') }}" rel="stylesheet">
+
+    <style>
+        .article-content {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .article-content img {
+            max-width: 100%;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .article-content img.zoomed {
+            transform: scale(2);
+            z-index: 1000;
+        }
+
+        /* 加载中提示样式 */
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* 错误消息样式 */
+        .error-message {
+            color: red;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>選擇日期</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="form-group" id="data_1">
+                            <label class="font-normal">日期</label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" class="form-control" value="{{ current_date }}" id="selected-date">
+                            </div>
+                        </div>
+                        <div class="ibox-title">
+                            <h5>部門列表</h5>
+                        </div>
+                        <div class="ibox-content" id="department-list">
+                            <!-- 部门列表将在这里生成 -->
+                        </div>
+                        <div class="ibox-title">
+                            <h5>文章列表</h5>
+                        </div>
+                        <div class="ibox-content" id="article-list">
+                            <!-- 文章列表将在这里生成 -->
+                        </div>
+                        <div class="ibox-title">
+                            <h5>近期上傳</h5>
+                        </div>
+                        <div class="ibox-content" id="recent-uploads">
+                            <!-- 近期上傳的文章将在这里生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>報告文章</h5>
+                    </div>
+                    <div class="ibox-content article-content" id="article-content">
+                        <h3 id="article-title"></h3>
+                        <!-- 文章内容将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            // 初始化日期选择器
+            $('.input-group.date').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                language: 'zh-CN'
+            }).on('changeDate', function (e) {
+                // 初始化文章列表
+                $('#article-list').html('');
+                $('#article-content').html('');
+                $('#article-title').text('');
+
+                // 加载新日期的数据
+                loadDepartments();
+                loadRecentUploads();
+            });
+
+            // 默认加载当前日期的报告和近期上传
+            loadDepartments();
+            loadRecentUploads();
+        });
+
+        // 部门映射字典
+        var departmentMap = {
+            'hr': '管理部',
+            'bo': '營業部',
+            'eg': '工務部',
+            'ex': '儲運部',
+            'ga': '財務部',
+            'pro': '生管部',
+            'pur': '採購部',
+            'QA': '品管部'
+        };
+
+        // 加载部门列表
+        function loadDepartments() {
+            var selectedDate = $('#selected-date').val();
+            $('#department-list').html('<div class="loading">加载中...</div>'); // 加载中的提示
+            $.get("/view_reports", { date: selectedDate }, function (data) {
+                if (data.reports.length === 0) {
+                    $('#department-list').html('<div class="error-message">無報告記錄</div>');
+                } else {
+                    var departments = [...new Set(data.reports.map(report => report.department))]; // 提取唯一部门列表
+                    var departmentListHtml = '<ul style="list-style-type: none; padding-left: 0;">';
+                    departments.forEach(function (department) {
+                        var departmentName = departmentMap[department] || department;
+                        departmentListHtml += '<li><a href="#" onclick="loadArticles(\'' + department + '\')"><i class="fa fa-circle text-navy"></i> ' + departmentName + '</a></li>';
+                    });
+                    departmentListHtml += '</ul>';
+                    $('#department-list').html(departmentListHtml);
+                }
+            }).fail(function () {
+                $('#department-list').html('<div class="error-message">加載部門失敗，請重試。</div>');
+            });
+        }
+
+        // 加载文章列表
+        function loadArticles(department) {
+            var selectedDate = $('#selected-date').val();
+            $('#article-list').html('<div class="loading">加载中...</div>'); // 加载中的提示
+
+            $.get("/get_article2", { date: selectedDate, department: department }, function (data) {
+                if (data.articles && data.articles.length > 0) {
+                    var articleListHtml = '<ul style="list-style-type: none; padding-left: 0;">';
+                    data.articles.forEach(function (article) {
+                        articleListHtml += '<li><a href="#" onclick="showArticle(\'' + article.title + '\', \'' + article.content + '\')"><i class="fa fa-circle text-navy"></i> ' + article.title + '</a></li>';
+                    });
+                    articleListHtml += '</ul>';
+                    $('#article-list').html(articleListHtml);
+                } else {
+                    $('#article-list').html('<div class="error-message">當日該部門無文章</div>');
+                }
+            }).fail(function () {
+                $('#article-list').html('<div class="error-message">加載文章列表失敗，請重試。</div>');
+            });
+        }
+
+        // 显示文章内容
+        function showArticle(title, content) {
+            $('#article-title').text(title);
+            $('#article-content').html(content);
+
+            // 处理图片缩放逻辑
+            $('#article-content img').click(function () {
+                $(this).toggleClass('zoomed');
+            });
+        }
+
+        // 加载近期上传的报告，显示各部门最新的一篇文章
+        function loadRecentUploads() {
+            $('#recent-uploads').html('<div class="loading">加载中...</div>'); // 加载中的提示
+            $.get("/get_latest_articles", function (data) {
+                if (data.articles.length === 0) {
+                    $('#recent-uploads').html('<div class="error-message">無近期上傳記錄</div>');
+                } else {
+                    var uploads = data.articles;
+                    var uploadsListHtml = '<ul style="list-style-type: none; padding-left: 0;">';
+                    uploads.forEach(function (upload) {
+                        var departmentName = departmentMap[upload.department] || upload.department;
+                        uploadsListHtml += `<li><a href="#" onclick="showArticle('${upload.title}', '${upload.content}')">
+                            <i class="fa fa-circle text-navy"></i> ${departmentName} - ${upload.date} - ${upload.title}</a></li>`;
+                    });
+                    uploadsListHtml += '</ul>';
+                    $('#recent-uploads').html(uploadsListHtml);
+                }
+            }).fail(function () {
+                $('#recent-uploads').html('<div class="error-message">加載近期上傳記錄失敗，請重試。</div>');
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>表單提交成功</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min93.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.min862f.css') }}" rel="stylesheet">
+    <style>
+        body.signin {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('{{ url_for('static', filename='img/login-background.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            color: rgba(255, 255, 255, 0.95);
+            height: 100vh; /* 确保背景覆盖整个视口高度 */
+            margin: 0;
+        }
+
+        .feedback-container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        #logo-img {
+            margin-top: 20px;
+            width: 200px; /* 根据需要调整Logo大小 */
+        }
+    </style>
+</head>
+
+<body class="signin">
+    <div class="feedback-container">
+        <h1>已提交表單</h1>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" id="logo-img">
+    </div>
+
+    <!-- 引入必要的JS库 -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/content.min.js') }}"></script>
+</body>
+
+</html>

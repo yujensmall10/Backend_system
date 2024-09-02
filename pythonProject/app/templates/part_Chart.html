@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Costs Chart</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min14ed.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min93e3.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.min862f.css') }}" rel="stylesheet">
+    <style>
+        #flot-bar-chart {
+            width: 100%;  /* 让图表宽度自适应父容器 */
+            height: 400px;  /* 根据需要调整高度 */
+        }
+        .ibox-content {
+            height: 600px;  /* 固定高度，单位可以是px、vh、em等 */
+            overflow-y: auto;  /* 如果内容超出高度，显示滚动条 */
+        }
+    </style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>進出庫花費圖表 <small>進庫花費</small></h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-wrench"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                <li><a href="#">选项1</a></li>
+                                <li><a href="#">选项2</a></li>
+                            </ul>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="flot-chart">
+                            <div class="flot-chart-content" id="flot-bar-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/flot/jquery.flot.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/flot/jquery.flot.resize.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/flot/jquery.flot.pie.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.categories.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.get("/get_monthly_costs", function(data) {
+                console.log(data);  // 打印数据到控制台
+
+                var months = data.months;
+                var inboundData = [];
+                var outboundData = [];
+
+                for (var i = 0; i < months.length; i++) {
+                    inboundData.push([months[i], data.inbound[i]]);
+                    outboundData.push([months[i], data.outbound[i]]);
+                }
+
+                console.log(inboundData);  // 再次检查生成的图表数据
+                console.log(outboundData);
+
+                $.plot("#flot-bar-chart", [
+                    {
+                        label: "進庫",
+                        data: inboundData,
+                        color: "#1ab394"
+                    },
+                    {
+                        label: "出庫",
+                        data: outboundData,
+                        color: "#ed5565"
+                    }
+                ], {
+                    series: {
+                        bars: {
+                            show: true,
+                            barWidth: 0.6,
+                            align: "center"
+                        }
+                    },
+                    xaxis: {
+                        mode: "categories",  // 使用类别模式
+                        tickLength: 0,  // 隐藏刻度线
+                        ticks: months.map(function(month, index) { return [index, month]; }),
+                        axisLabel: '月份',  // X轴标签
+                        min: 0, // 如果你希望有特定的最小值
+                        max: months.length - 1 // 特定的最大值
+                    },
+                    yaxis: {
+                        min: 0,
+                        tickFormatter: function(val, axis) {
+                            return val.toFixed(0);  // 显示为整数
+                        },
+                        axisLabel: '金额 (元)'  // Y轴标签
+                    },
+                    grid: {
+                        hoverable: true,
+                        clickable: true
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

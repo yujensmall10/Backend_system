@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H+ 后台主题UI框架 - 富文本编辑器</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3.3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min93.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plugins/summernote/summernote.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plugins/summernote/summernote-bs3.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.min862f.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet">
+    <style>
+        #title-group {
+            padding-top: 15px;
+            padding-left: 30px; /* 增加内边距 */
+            padding-right: 500px;
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>選擇日期和部門</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="form-group" id="data_1">
+                            <label class="font-normal">日期</label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" class="form-control" value="{{ current_date }}" id="selected-date">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-normal">部門</label>
+                            <select class="form-control" id="department">
+                                <option value="hr">管理部</option>
+                                <!-- 添加更多部门选项 -->
+                            </select>
+                        </div>
+                        <div class="ibox-title">
+                            <h5>該日報告</h5>
+                        </div>
+                        <div class="ibox-content" id="existing-articles">
+                            <!-- 現有文章列表將在這裡生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9" style="display: none;" id="report-section">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>報告</h5>
+                        <div class="text-right">
+                            <button id="edit" class="btn btn-primary btn-xs" onclick="edit()" type="button">编辑</button>
+                            <button id="save" class="btn btn-primary btn-xs" onclick="save()" type="button">保存</button>
+                            <button id="revise" class="btn btn-primary btn-xs" onclick="update()" type="button">修改</button>
+                        </div>
+                    </div>
+                    <div class="ibox-content" id="eg">
+                        <div class="form-group" id="title-group" style="display: none;">
+                            <label class="font-normal">標題</label>
+                            <input type="text" class="form-control" id="title" required>
+                        </div>
+                        <div class="click2edit wrapper">
+                            <h3>在這裡輸入文字 </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9" id="report-section2">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>報告</h5>
+                        <div class="text-right">
+                            <button id="add" class="btn btn-primary btn-xs" onclick="showNewReport()" type="button">新增</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/content.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/summernote/summernote.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/summernote/summernote-zh-CN.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+    <script>
+        var currentTitle = "";
+
+        $(document).ready(function () {
+            $(".summernote").summernote({
+                lang: "zh-CN"
+            });
+
+            $('.input-group.date').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                language: 'zh-CN'
+            }).on('changeDate', function (e) {
+                resetView(); // 重置视图
+                loadArticles();
+            });
+
+            $('#department').change(function () {
+                resetView(); // 重置视图
+                loadArticles();
+            });
+
+            // 默认加载当前日期和部门的文章
+            loadArticles();
+        });
+
+        function loadArticles() {
+            var selectedDate = $('#selected-date').val();
+            var department = $('#department').val();
+
+            $.get("/get_reports", { date: selectedDate, department: department }, function (data) {
+                var articles = data.reports;
+                var articleListHtml = '<ul style="list-style-type: none; padding-left: 0;">';
+                for (var i = 0; i < articles.length; i++) {
+                    articleListHtml += '<li><a href="#" onclick="loadArticle(\'' + articles[i].title + '\')"><i class="fa fa-circle text-navy"></i> ' + articles[i].title + '</a>' +
+                        '<button class="btn btn-danger btn-xs" style="margin-left: 10px;" onclick="deleteArticle(\'' + articles[i].title + '\')"><i class="fa fa-trash"></i></button></li>';
+                }
+                articleListHtml += '</ul>';
+                $('#existing-articles').html(articleListHtml);
+            });
+
+            // Load the first article by default if available
+            if (articles.length > 0) {
+                loadArticle(articles[0].title);
+            }
+        }
+
+        function loadArticle(title) {
+            var selectedDate = $('#selected-date').val();
+            var department = $('#department').val();
+            title = title || $('#title').val();  // 获取标题
+
+            if (title.trim() === "") {
+                $('.click2edit').html('<h3>在這裡輸入報告內容 </h3>');
+                return;
+            }
+
+            $.get("/get_article", { date: selectedDate, department: department, title: title }, function (data) {
+                if (data.message === '文件不存在') {
+                    $('.click2edit').html('<h3>在這裡輸入報告內容 </h3>');
+                } else {
+                    $('.click2edit').html(data.content);
+                    $('#title').val(data.title);
+                    currentTitle = data.title;  // 保存当前标题以便更新时使用
+                    $('#report-section').show();  // 顯示報告視窗
+                    $('#report-section2').hide(); // 隐藏新增报告视窗
+                    updateButtonVisibility('view'); // 更新按钮状态
+                }
+            });
+        }
+
+        var edit = function () {
+            $("#eg").addClass("no-padding");
+            $("#title-group").show(); // 显示标题输入框
+            $(".click2edit").summernote({
+                lang: "zh-CN",
+                focus: true
+            });
+            updateButtonVisibility('edit'); // 更新按钮状态
+        };
+
+        var save = function () {
+            $("#eg").removeClass("no-padding");
+            var aHTML = $(".click2edit").code(); // 获取内容
+            $(".click2edit").destroy(); // 销毁编辑器
+            $("#title-group").hide(); // 隐藏标题输入框
+            var selectedDate = $('#selected-date').val(); // 获取最新日期
+            var department = $('#department').val(); // 获取部门
+            var title = $('#title').val(); // 获取标题
+            $.ajax({
+                type: "POST",
+                url: "/save_article",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    date: selectedDate,
+                    department: department,
+                    title: title,
+                    content: aHTML
+                }),
+                success: function (data) {
+                    alert(data.message);
+                    loadArticles(); // 保存后重新加载文章列表
+                    updateButtonVisibility('view'); // 更新按钮状态
+                },
+                dataType: "json"
+            });
+        };
+
+        var update = function () {
+            $("#eg").removeClass("no-padding");
+            var aHTML = $(".click2edit").code(); // 获取内容
+            $(".click2edit").destroy(); // 销毁编辑器
+            $("#title-group").hide(); // 隐藏标题输入框
+            var selectedDate = $('#selected-date').val(); // 获取最新日期
+            var department = $('#department').val(); // 获取部门
+            var newTitle = $('#title').val(); // 获取新的标题
+            $.ajax({
+                type: "PUT",
+                url: "/update_article",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    date: selectedDate,
+                    department: department,
+                    old_title: currentTitle,  // 使用保存的当前标题
+                    new_title: newTitle,
+                    content: aHTML
+                }),
+                success: function (data) {
+                    alert(data.message);
+                    loadArticles(); // 更新后重新加载文章列表
+                    updateButtonVisibility('view'); // 更新按钮状态
+                },
+                dataType: "json"
+            });
+        };
+
+        function deleteArticle(title) {
+            var selectedDate = $('#selected-date').val();
+            var department = $('#department').val();
+
+            $.ajax({
+                type: "DELETE",
+                url: "/delete_article",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    date: selectedDate,
+                    department: department,
+                    title: title
+                }),
+                success: function (data) {
+                    alert(data.message);
+                    loadArticles(); // 删除后重新加载文章列表
+                    resetView(); // 删除后重置视图
+                },
+                error: function (jqXHR) {
+                    alert('删除失败: ' + jqXHR.responseText);
+                },
+                dataType: "json"
+            });
+        }
+
+        function showNewReport() {
+            $('#title').val(''); // 清空标题输入框
+            $('.click2edit').html('<h3>在這裡輸入報告內容 </h3>'); // 清空内容
+            $('#report-section').show(); // 显示报告视窗
+            $('#report-section2').hide(); // 隐藏新增报告视窗
+            edit(); // 启动编辑模式
+            updateButtonVisibility('add'); // 更新按钮状态
+        }
+
+        function resetView() {
+            $('#report-section').hide(); // 隐藏报告视窗
+            $('#report-section2').show(); // 显示新增报告视窗
+            updateButtonVisibility('default'); // 重置按钮状态
+        }
+
+        function updateButtonVisibility(state) {
+            switch (state) {
+                case 'view':
+                    $('#edit').show();
+                    $('#save').hide();
+                    $('#revise').hide();
+                    break;
+                case 'edit':
+                    $('#edit').hide();
+                    $('#save').hide();
+                    $('#revise').show();
+                    break;
+                case 'add':
+                    $('#edit').hide();
+                    $('#save').show();
+                    $('#revise').hide();
+                    break;
+                default:
+                    $('#edit').hide();
+                    $('#save').hide();
+                    $('#revise').hide();
+                    break;
+            }
+        }
+    </script>
+</body>
+
+</html>

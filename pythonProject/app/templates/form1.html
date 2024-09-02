@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>高階主管級到院健檢*-報名表</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icons/favicon.ico') }}" />
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/Linearicons-Free-v1.0.0/icon-font.min.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animsition/css/animsition.min.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/daterangepicker/daterangepicker.css') }}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <!--===============================================================================================-->
+    <style>
+        @media (max-width: 768px) {
+            .contact100-more {
+                order: -1;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .wrap-contact100 {
+                flex-direction: column;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container-contact100">
+        <div class="wrap-contact100">
+            <form id="google-form" class="contact100-form validate-form">
+                <span class="contact100-form-title">
+                    強匠高階主管到院健檢-報名表
+                </span>
+
+                <label class="label-input100" for="first-name">姓名 *</label>
+                <div class="wrap-input100 validate-input" data-validate="姓名為必填">
+                    <input id="name" class="input100" type="text" placeholder="">
+                    <span class="focus-input100"></span>
+                </div>
+
+                <label class="label-input100" for="date">健檢日期 *</label>
+                <div class="wrap-input100 validate-input" data-validate="煩請評分">
+                    <select class="form-control" id="score" style="border: 0px;">
+                        <option>11/11</option>
+                        <option>11/12</option>
+                        <option>11/13</option>
+                        <option>11/14</option>
+                    </select>
+                </div>
+
+                <label class="label-input100" for="date">健檢項目 *</label>
+                <div class="wrap-input100 validate-input" data-validate="煩請評分">
+                    <select class="form-control" id="choice" style="border: 0px;">
+                        <option>基本健檢</option>
+                        <option>樂活</option>
+                        <option>全心</option>
+                    </select>
+                </div>
+
+                <label class="label-input100" for="phone">電話 *</label>
+                <div class="wrap-input100 validate-input" data-validate="電話為必填">
+                    <input id="phone" class="input100" type="text" placeholder="">
+                    <span class="focus-input100"></span>
+                </div>
+
+                <div class="container-contact100-form-btn">
+                    <button type="button" class="contact100-form-btn" data-toggle="modal" data-target="#familyModal">
+                        眷屬資料
+                    </button>
+                </div>
+                <div class="container-contact100-form-btn">
+                    <button class="contact100-form-btn">
+                        送出
+                    </button>
+                </div>
+
+                <!-- 模态窗口 -->
+                <div class="modal fade" id="familyModal" tabindex="-1" role="dialog" aria-labelledby="familyModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="familyModalLabel">攜帶眷屬再填*</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <label class="label-input100" for="first-name">眷屬姓名</label>
+                                <div class="wrap-input100 validate-input" data-validate="姓名為必填">
+                                    <input id="familyname" class="input100" type="text" placeholder="">
+                                    <span class="focus-input100"></span>
+                                </div>
+                                <label class="label-input100" for="first-name">身分證 </label>
+                                <div class="wrap-input100 validate-input" data-validate="姓名為必填">
+                                    <input id="familyid" class="input100" type="text" placeholder="">
+                                    <span class="focus-input100"></span>
+                                </div>
+                                <label class="label-input100" for="first-name">出生年月日</label>
+                                <div class="form-group">
+                                    <input type="date" class="form-control" id="familydob">
+                                    <!-- 隐藏字段 -->
+                                    <input type="hidden" id="yearField" name="familydob_year">
+                                    <input type="hidden" id="monthField" name="familydob_month">
+                                    <input type="hidden" id="dayField" name="familydob_day">
+                                </div>
+                                <label class="label-input100" for="first-name">電話</label>
+                                <div class="wrap-input100 validate-input" data-validate="姓名為必填">
+                                    <input id="familyphone" class="input100" type="text" placeholder="">
+
+                                    <span class="focus-input100"></span>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="contact100-more flex-col-c-m" style="background-image: url('{{ url_for('static', filename='images/bg-01.jpg') }}');">
+                <div class="flex-w size1 p-b-47">
+                    <div class="txt1 p-r-25">
+                        <span class="lnr lnr-file-empty"></span>
+                    </div>
+
+                    <div class="flex-col size2">
+                        <span class="txt1 p-b-20">
+                            資訊
+                        </span>
+
+                        <span class="txt2">
+                            地點：衛生福利部---屏東醫院健檢中心二樓。<br>
+                            地址：屏東市自由路270號。<br>
+                            日期：113年11月11日-14日。
+                        </span>
+                    </div>
+                </div>
+
+                <div class="dis-flex size1 p-b-47">
+                    <div class="txt1 p-r-25">
+                        <span class="lnr lnr-heart-pulse"></span>
+                    </div>
+
+                    <div class="flex-col size2">
+                        <span class="txt1 p-b-20">
+                            健檢項目三選一
+                        </span>
+
+                        <span class="txt2">1. 全心關懷：<br>針對低劑量肺部電腦斷層或是冠狀動脈鈣化，偵測心或肺部的病灶。<br>
+                            2. 樂活健檢：<br>超音波項目，糞便潛血檢查、腫瘤篩檢。<br>
+                            3. 基本關懷：<br>基礎體檢項目包含抽血、肝膽、腎功能、糞便檢查等。<br>
+                        </span>
+                        <span class="txt2 p-r-25" style="font-weight: bold; font-size: 19px;"><br>詳細內容請見下方健檢附件<br><br>
+                        *本年度新增福利<br>
+                        高階主管可攜一名配偶或家屬<br>免費享受公司提供的基本關懷體檢項目。
+                        </span>
+                    </div>
+                </div>
+
+                <div class="dis-flex size1 p-b-47">
+                    <div class="txt1 p-r-25">
+                        <span class="lnr lnr-warning"></span>
+                    </div>
+
+                    <div class="flex-col size2">
+                        <span class="txt1 p-b-20">
+                            備註
+                        </span>
+
+                        <span class="txt2">
+                            1.填寫健檢日期、健檢項目，報名人數一天勿超過5位健檢<br>
+                            2.申請公假健檢，健檢費用由公司支出，加價項目需自費
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 包裹按鈕區域的容器 -->
+        <div class="wrap-contact100" style="margin-top: 20px; text-align: center;">
+        <span class="contact100-form-title">
+                   健檢附件
+                </span>
+            <div class="row justify-content-center">
+                <div class="col-6 col-sm-3 col-md-2">
+                    <div class="container-contact100-form-btn" style="padding: 0 5px;">
+                        <a href="{{ url_for('static', filename='113年強匠(基本關懷)-已修改.pdf') }}" target="_blank" class="contact100-form-btn" style="padding: 10px 0;">
+                            基本
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3 col-md-2">
+                    <div class="container-contact100-form-btn" style="padding: 0 5px;">
+                        <a href="{{ url_for('static', filename='113年強匠(樂活健檢)-女---修改.pdf') }}" target="_blank" class="contact100-form-btn" style="padding: 10px 0;">
+                            樂活-女
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3 col-md-2">
+                    <div class="container-contact100-form-btn" style="padding: 0 5px;">
+                        <a href="{{ url_for('static', filename='113年強匠(樂活健檢)-男--修改.pdf') }}" target="_blank" class="contact100-form-btn" style="padding: 10px 0;">
+                            樂活-男
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3 col-md-2">
+                    <div class="container-contact100-form-btn" style="padding: 0 5px;">
+                        <a href="{{ url_for('static', filename='113年強匠(全心關懷)-女--修改.pdf') }}" target="_blank" class="contact100-form-btn" style="padding: 10px 0;">
+                            全心-女
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3 col-md-2">
+                    <div class="container-contact100-form-btn" style="padding: 0 5px;">
+                        <a href="{{ url_for('static', filename='113年強匠(全心關懷)-男-已修改.pdf') }}" target="_blank" class="contact100-form-btn" style="padding: 10px 0;">
+                            全心-男
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="dropDownSelect1"></div>
+
+    <!--===============================================================================================-->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js') }}"></script>
+    <!--===============================================================================================-->
+    <script src="{{ url_for('static', filename='vendor/animsition/js/animsition.min.js') }}"></script>
+    <!--===============================================================================================-->
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/popper.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+    <!--===============================================================================================-->
+    <script src="{{ url_for('static', filename='vendor/select2/select2.min.js') }}"></script>
+    <script>
+        $(".selection-2").select2({
+            minimumResultsForSearch: 20,
+            dropdownParent: $('#dropDownSelect1')
+        });
+    </script>
+    <!--===============================================================================================-->
+    <script src="{{ url_for('static', filename='vendor/daterangepicker/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/daterangepicker/daterangepicker.js') }}"></script>
+    <!--===============================================================================================-->
+    <script src="{{ url_for('static', filename='vendor/countdowntime/countdowntime.js') }}"></script>
+    <!--===============================================================================================-->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        $('#google-form').submit(function(e) {
+            e.preventDefault();
+
+            // 获取并拆分出生年月日
+            const familydob = $('#familydob').val();
+            const [familydob_year, familydob_month, familydob_day] = familydob.split('-');
+
+            // 将拆分出来的年、月、日设置到隐藏字段中
+            $('#yearField').val(familydob_year);
+            $('#monthField').val(familydob_month);
+            $('#dayField').val(familydob_day);
+
+            // Debugging output to ensure values are correctly set
+            console.log("dob:", $('#familydob').val());
+            console.log("Year:", $('#yearField').val());
+            console.log("Month:", $('#monthField').val());
+            console.log("Day:", $('#dayField').val());
+
+            // 提交表单数据
+            $.ajax({
+                url: "/submit_form",
+                type: "POST",
+                data: {
+                    "name": $('#name').val(),
+                    "score": $('#score').val(),
+                    "choice": $('#choice').val(),
+                    "phone": $('#phone').val(),
+                    "familyname": $('#familyname').val(),
+                    "familyid": $('#familyid').val(),
+                    "familydob_year": $('#yearField').val(),    // 使用隐藏字段的值
+                    "familydob_month": $('#monthField').val(),  // 使用隐藏字段的值
+                    "familydob_day": $('#dayField').val(),      // 使用隐藏字段的值
+                    "familyphone": $('#familyphone').val()
+                },
+                success: function() {
+                    window.location.replace("thanks");
+                },
+                error: function() {
+                    alert('健檢日期已額滿');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

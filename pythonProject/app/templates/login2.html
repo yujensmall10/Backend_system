@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>強匠後台系統</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-1.7.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <style>
+        body {
+            background: #003060;
+            font-family: 'Roboto', sans-serif;
+        }
+        .form-bg {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .form-container .heading {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .form-control {
+            border-radius: 20px;
+            padding-left: 30px;
+        }
+        .btn-default {
+            background: #0072ff;
+            color: #fff;
+            border-radius: 20px;
+            width: 100px;
+        }
+        .btn-default:hover {
+            background: #0056b3;
+            color: #fff;
+        }
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .form-group i {
+            position: absolute;
+            margin-left: 10px;
+            margin-top: 12px;
+            color: #0072ff;
+        }
+        .create_account {
+            color: #0072ff;
+            display: block;
+            margin-top: 20px;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="demo form-bg">
+        <div class="form-container">
+            <!-- 預留logo位置 -->
+            <img src="{{ url_for('static', filename='images/QiangJiang_logo.png') }}" alt="Logo" class="logo" style="max-width: 150px;">
+            <form class="form-horizontal" action="{{ url_for('login') }}" method="post">
+                <div class="heading">強匠後台系統</div>
+                <div class="form-group position-relative">
+                    <i class="fa fa-user"></i><input required name="username" type="text" class="form-control" placeholder="帳號" id="exampleInputEmail1">
+                </div>
+                <div class="form-group position-relative">
+                    <i class="fa fa-lock"></i><input required name="password" type="password" class="form-control" placeholder="密碼" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default"><i class="fa fa-arrow-right"></i> 登入</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

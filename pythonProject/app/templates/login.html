@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>強匠後台系統</title>
+    <meta name="keywords" content="強匠後台系統">
+    <meta name="description" content="強者風範 匠心獨具">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min93.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/login.min.css') }}" rel="stylesheet">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#000000">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>
+        if (window.top !== window.self) {
+            window.top.location = window.location;
+        }
+
+        // Clear localStorage if user just logged out
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if clear_storage %}
+            localStorage.removeItem('savedUsername');
+            localStorage.removeItem('savedPassword');
+            {% endif %}
+        });
+    </script>
+</head>
+
+<body class="signin">
+    <div class="signinpanel">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <div class="logopanel">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" id="logo-img"> <!-- 替換為你的 LOGO 圖片 -->
+                </div>
+            </div>
+            <div class="col-sm-7">
+                <div class="signin-info">
+                    <div class="logopanel m-b">
+<!--                        <h1><strong>強匠後台系統</strong></h1>-->
+                    </div>
+                    <div class="m-b"></div>
+                    <h2><strong>強者風範 <span style="margin-left: 20px; margin-right: 20px;"></span> 匠心獨具</strong></h2>
+                    <h3>廚房的美味．來自專業的調味</h3>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+                    <h4 class="no-margins">登入</h4>
+                    <p class="m-t-md"></p>
+                    <input type="text" class="form-control uname" name="username" placeholder="帳號" required>
+                    <input type="password" class="form-control pword m-b" name="password" placeholder="密碼" required>
+                    <div class="checkbox m-b" style="text-align: left;">
+                        <label style="margin-left: 0;">
+                            <input type="checkbox" id="rememberMe"> 自動登入
+                        </label>
+                    </div>
+                    <button class="btn btn-success btn-block" type="submit">登入</button>
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ messages[0] }}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </form>
+            </div>
+        </div>
+        <div class="signup-footer">
+            <div class="pull-left">
+                &copy; Copyright © 強匠冷凍食品股份有限公司 CHANG JIANG FROZEN FOODS CO., LTD.
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if credentials are stored
+            const savedUsername = localStorage.getItem('savedUsername');
+            const savedPassword = localStorage.getItem('savedPassword');
+
+            // Handle auto-login after logo is loaded
+            const logoImage = document.getElementById('logo-img');
+            logoImage.addEventListener('load', function() {
+                if (savedUsername && savedPassword) {
+                    // Automatically fill and submit the form after a slight delay
+                    document.querySelector('input[name="username"]').value = savedUsername;
+                    document.querySelector('input[name="password"]').value = savedPassword;
+                    setTimeout(function() {
+                        document.getElementById('loginForm').submit();
+                    }, 1000); // 1秒延迟
+                }
+            });
+
+            // Save credentials when the form is submitted
+            document.getElementById('loginForm').addEventListener('submit', function() {
+                if (document.getElementById('rememberMe').checked) {
+                    const username = document.querySelector('input[name="username"]').value;
+                    const password = document.querySelector('input[name="password"]').value;
+                    localStorage.setItem('savedUsername', username);
+                    localStorage.setItem('savedPassword', password);
+                } else {
+                    localStorage.removeItem('savedUsername');
+                    localStorage.removeItem('savedPassword');
+                }
+            });
+        });
+
+        // Register service worker if available
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
